@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Procesamiento de Transacciones</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+        }
+
+        .container {
+            width: 450px;
+            margin: 60px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #125ca1;
+        }
+
+        #resultado {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #eeeeee;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Procesar Transacción</h2>
+
+    <label>Operación</label>
+    <input id="operacion" value="venta">
+
+    <label>Importe</label>
+    <input id="importe" value="100.00">
+
+    <label>Cliente</label>
+    <input id="cliente" value="Angelito">
+
+    <label>Secreto cifrado AES-256</label>
+    <input id="secreto"
+           value="bnc7jFQUMNJG3JXyYIjSjsbSR0jEmUjIUKHCA8GATP373g==">
+
+    <button onclick="procesarTransaccion()">
+        Procesar transacción
+    </button>
+
+    <div id="resultado">
+        Esperando transacción...
+    </div>
+
+</div>
+
+<script>
+
+async function procesarTransaccion() {
+
+    const resultado = document.getElementById("resultado");
+
+    resultado.textContent = "Procesando...";
+
+    const transaccion = {
+        operacion: document.getElementById("operacion").value,
+        importe: document.getElementById("importe").value,
+        cliente: document.getElementById("cliente").value,
+        secreto: document.getElementById("secreto").value
+    };
+
+    try {
+
+        const response = await fetch("/api/v1/transactions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(transaccion)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            resultado.textContent =
+                "Error HTTP " + response.status + "\n\n" +
+                JSON.stringify(data, null, 2);
+            return;
+        }
+
+        resultado.textContent =
+            "Transacción procesada correctamente\n\n" +
+            JSON.stringify(data, null, 2);
+
+    } catch (error) {
+
+        resultado.textContent =
+            "Error al conectar con API1:\n" +
+            error.message;
+    }
+}
+
+</script>
+
+</body>
+</html>

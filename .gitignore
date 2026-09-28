@@ -1,0 +1,11 @@
+.metadata/
+.settings/
+.classpath
+.project
+bin/
+
+# Maven
+target/
+
+# Logs
+*.log
