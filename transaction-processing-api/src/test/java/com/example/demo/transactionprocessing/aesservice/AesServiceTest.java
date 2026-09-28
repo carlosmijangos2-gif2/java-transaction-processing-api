@@ -25,12 +25,10 @@ class AesServiceTest {
 
 		    AesService aesService = new AesService(key);
 
-        // Act
-        String textoCifrado = aesService.encrypt(textoOriginal);
-        String textoDescifrado = aesService.decrypt(textoCifrado);
+		    String textoCifrado = aesService.encrypt(textoOriginal);
+		    String textoDescifrado = aesService.decrypt(textoCifrado);
 
-        
-        // Assert
+		    // Assert
 assertEquals(textoOriginal, textoDescifrado);
     }
 }

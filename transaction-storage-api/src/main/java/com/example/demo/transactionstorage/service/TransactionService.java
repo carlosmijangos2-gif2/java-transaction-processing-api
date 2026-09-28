@@ -1,6 +1,6 @@
 package com.example.demo.transactionstorage.service;
 
-import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Service;
 
@@ -25,9 +25,12 @@ public class TransactionService {
         transaction.setImporte(request.getImporte());
         transaction.setCliente(request.getCliente());
 
-        transaction.setReferencia(UUID.randomUUID().toString());
+        int referencia = ThreadLocalRandom.current()
+                .nextInt(100000, 1000000);
 
-        transaction.setEstatus(request.getEstatus());
+        transaction.setReferencia(String.valueOf(referencia));
+
+        transaction.setEstatus("APROBADA");
 
         return repository.save(transaction);
     }
