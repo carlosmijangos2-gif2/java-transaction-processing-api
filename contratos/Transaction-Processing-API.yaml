@@ -1,0 +1,188 @@
+openapi: 3.0.3
+
+info:
+  title: Transaction Processing API
+  description: API para validar y procesar operaciones de transacción.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local
+
+tags:
+  - name: Transactions
+    description: Operaciones de transacciones
+
+paths:
+
+  /transactions:
+    post:
+      tags:
+        - Transactions
+      summary: Procesar una transacción
+      operationId: processTransaction
+      description: >
+        Valida y procesa una transacción. El secreto recibido
+        desde el cliente debe estar cifrado mediante AES-256.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+            example:
+              operacion: venta
+              importe: "100.00"
+              cliente: Angel
+              secreto: "jejdjw134&3#$$"
+
+      responses:
+
+        '200':
+          description: Transacción procesada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+              example:
+                id: "2376"
+                estatus: Aprobada
+                referencia: "262737"
+                operacion: venta
+
+        '400':
+          description: Solicitud inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '401':
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '422':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+
+  schemas:
+
+    TransactionRequest:
+      type: object
+      required:
+        - operacion
+        - importe
+        - cliente
+        - secreto
+      properties:
+
+        operacion:
+          type: string
+          description: Tipo de operación a realizar.
+          minLength: 1
+          maxLength: 20
+          pattern: '^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'
+          example: venta
+
+        importe:
+          type: string
+          description: Importe monetario de la transacción.
+          pattern: '^\d{1,12}(\.\d{2})?$'
+          example: "100.00"
+
+        cliente:
+          type: string
+          description: Nombre del cliente.
+          minLength: 1
+          maxLength: 100
+          pattern: '^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$'
+          example: Angel
+
+        secreto:
+          type: string
+          description: >
+            Secreto cifrado mediante AES-256 enviado por el cliente.
+          minLength: 1
+          example: "jejdjw134&3#$$"
+
+
+    TransactionResponse:
+      type: object
+      required:
+        - id
+        - estatus
+        - referencia
+        - operacion
+      properties:
+
+        id:
+          type: string
+          description: Identificador único de la transacción.
+          example: "2376"
+
+        estatus:
+          type: string
+          description: Estado actual de la transacción.
+          enum:
+            - Aprobada
+            - Cancelada
+          example: Aprobada
+
+        referencia:
+          type: string
+          description: Referencia numérica de 6 dígitos.
+          pattern: '^\d{6}$'
+          example: "262737"
+
+        operacion:
+          type: string
+          description: Tipo de operación procesada.
+          example: venta
+
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+      properties:
+
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-09-24T12:00:00Z"
+
+        status:
+          type: integer
+          example: 400
+
+        error:
+          type: string
+          example: Bad Request
+
+        message:
+          type: string
+          example: El atributo importe tiene un formato inválido.
+
+        path:
+          type: string
+          example: /transactions
